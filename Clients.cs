@@ -50,7 +50,7 @@ public class Clients
         {
             if (lastUpdateDate.HasValue && (DateTime.Now - lastUpdateDate.Value).TotalDays < Constraint.YtDlpUpdateIntervalDays)
             {
-                Logger.Info("yt-dlp was updated within the last 24 hours. Skipping update.", Logger.LogSource.ManagementResource);
+                Logger.Info($"yt-dlp was updated within the last {Constraint.YtDlpUpdateIntervalDays} day(s). Skipping update.", Logger.LogSource.ManagementResource);
                 return;
             }
 

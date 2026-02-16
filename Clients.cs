@@ -48,9 +48,9 @@ public class Clients
     {
         if (File.Exists(Constraint.YtDlpClientPath))
         {
-            if (lastUpdateDate.HasValue && (DateTime.Now - lastUpdateDate.Value).TotalDays < 1)
+            if (lastUpdateDate.HasValue && (DateTime.Now - lastUpdateDate.Value).TotalDays < Constraint.YtDlpUpdateIntervalDays)
             {
-                Logger.Info("yt-dlp was updated within the last 24 hours. Skipping update.", Logger.LogSource.ManagementResource);
+                Logger.Info($"yt-dlp was updated within the last {Constraint.YtDlpUpdateIntervalDays} day(s). Skipping update.", Logger.LogSource.ManagementResource);
                 return;
             }
 
@@ -101,9 +101,9 @@ public class Clients
             return;
         try
         {
-            var version = (await Client.GetStringAsync("https://dl.deno.land/release-latest.txt")).Trim();
+            var version = (await Client.GetStringAsync(Constraint.DenoVersionUrl)).Trim();
             Logger.Info($"Downloading Deno version: {version}", Logger.LogSource.ManagementResource);
-            var denoZipUrl = $"https://dl.deno.land/release/{version}/deno-x86_64-pc-windows-msvc.zip";
+            var denoZipUrl = string.Format(Constraint.DenoDownloadUrlTemplate, version);
             Logger.Info($"Deno download URL: {denoZipUrl}", Logger.LogSource.ManagementResource);
             var response = await Client.GetAsync(denoZipUrl);
             response.EnsureSuccessStatusCode();
@@ -142,7 +142,7 @@ public class Clients
         startInfo.EnvironmentVariables["TEMP"] = startInfo.EnvironmentVariables["TMP"] = Constraint.TmpDirectory;
         startInfo.EnvironmentVariables["HOME"] = Constraint.HomeDirectory;
 
-        Logger.Info(new string('=', 80) + $"\n[{DateTime.Now:yyyy-MM-dd HH:mm:ss}]  {string.Join(" ", startInfo.ArgumentList)}", Logger.LogSource.YtDlpBridge);
+        Logger.Info(new string('=', Constraint.LogSeparatorLength) + $"\n[{DateTime.Now:yyyy-MM-dd HH:mm:ss}]  {string.Join(" ", startInfo.ArgumentList)}", Logger.LogSource.YtDlpBridge);
 
         using var process = new Process { StartInfo = startInfo };
 

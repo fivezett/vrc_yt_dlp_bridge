@@ -20,10 +20,24 @@ echo.
 
 powershell -NoProfile -ExecutionPolicy Bypass -Command ^
   "$toolsDir = \"$env:LOCALAPPDATA\..\LocalLow\VRChat\VRChat\Tools\";" ^
-  "Remove-Item -Path (Join-Path $toolsDir 'yt-dlp.exe') -Force -ErrorAction SilentlyContinue;" ^
-  "Remove-Item -Path (Join-Path $toolsDir 'yt-dlp_bridge') -Recurse -Force -ErrorAction SilentlyContinue;" ^
-  "Write-Host '削除しました。';" ^
-  "Write-Host 'Uninstall complete.';" ^
+  "$exePath = Join-Path $toolsDir 'yt-dlp.exe';" ^
+  "$bridgeDir = Join-Path $toolsDir 'yt-dlp_bridge';" ^
+  "$found = $false;" ^
+  "if (Test-Path $exePath) {" ^
+  "  Remove-Item -Path $exePath -Force;" ^
+  "  $found = $true" ^
+  "};" ^
+  "if (Test-Path $bridgeDir) {" ^
+  "  Remove-Item -Path $bridgeDir -Recurse -Force;" ^
+  "  $found = $true" ^
+  "};" ^
+  "if ($found) {" ^
+  "  Write-Host '削除しました。';" ^
+  "  Write-Host 'Uninstall complete.'" ^
+  "} else {" ^
+  "  Write-Host 'インストールされていません。';" ^
+  "  Write-Host 'Not installed.'" ^
+  "};" ^
   "Write-Host '';" ^
   "Write-Host '完了！ このウィンドウは閉じて大丈夫です。';" ^
   "Write-Host 'Done! You may close this window.'"

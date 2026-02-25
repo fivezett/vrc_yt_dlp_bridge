@@ -5,7 +5,7 @@ VRChat のビデオプレイヤー向け [yt-dlp](https://github.com/yt-dlp/yt-d
 ## 📖 概要
 
 VRChatでoffcialのyt-dlpを使用するためのブリッジアプリケーションです。  
-yt-dlp 2025.11.12移行からJavaScriptランタイムの使用が推奨となったため作ってみました。  
+yt-dlp 2025.11.12以降からJavaScriptランタイムの使用が推奨となったため作ってみました。  
 本ソフトウェアは、VRChat公式と一切の関係性はありません。全て自己責任でお願いします。  
 denoの自動取得とyt-dlpの自動更新機能を備えています。  
 

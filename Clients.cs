@@ -71,6 +71,8 @@ public class Clients
                 if (e.Data != null) Logger.Warning(e.Data, Logger.LogSource.ManagementResource);
             };
 
+            SetYtDlpEnv(process.StartInfo);
+
             process.Start();
             process.BeginOutputReadLine();
             process.BeginErrorReadLine();
@@ -120,11 +122,6 @@ public class Clients
 
     public static async Task ExecYtDlp(string[] args)
     {
-        if (!Directory.Exists(Constraint.TmpDirectory))
-            Directory.CreateDirectory(Constraint.TmpDirectory);
-        if (!Directory.Exists(Constraint.HomeDirectory))
-            Directory.CreateDirectory(Constraint.HomeDirectory);
-
         var startInfo = new ProcessStartInfo
         {
             FileName = Constraint.YtDlpClientPath,
@@ -139,8 +136,7 @@ public class Clients
         pargs = pargs.Where(arg => arg != "--no-cache-dir" && arg != "--rm-cache-dir").ToList();
         foreach (var arg in pargs) startInfo.ArgumentList.Add(arg);
 
-        startInfo.EnvironmentVariables["TEMP"] = startInfo.EnvironmentVariables["TMP"] = Constraint.TmpDirectory;
-        startInfo.EnvironmentVariables["HOME"] = Constraint.HomeDirectory;
+        SetYtDlpEnv(startInfo);
 
         Logger.Info(new string('=', Constraint.LogSeparatorLength) + $"\n[{DateTime.Now:yyyy-MM-dd HH:mm:ss}]  {string.Join(" ", startInfo.ArgumentList)}", Logger.LogSource.YtDlpBridge);
 
@@ -172,5 +168,16 @@ public class Clients
         await process.WaitForExitAsync();
 
         Environment.Exit(process.ExitCode);
+    }
+
+    private static void SetYtDlpEnv(ProcessStartInfo startInfo)
+    {
+        if (!Directory.Exists(Constraint.TmpDirectory))
+            Directory.CreateDirectory(Constraint.TmpDirectory);
+        if (!Directory.Exists(Constraint.HomeDirectory))
+            Directory.CreateDirectory(Constraint.HomeDirectory);
+
+        startInfo.EnvironmentVariables["TEMP"] = startInfo.EnvironmentVariables["TMP"] = Constraint.TmpDirectory;
+        startInfo.EnvironmentVariables["HOME"] = Constraint.HomeDirectory;
     }
 }

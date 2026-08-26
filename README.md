@@ -59,5 +59,5 @@ denoおよびyt-dlpのライセンスについてはそれぞれのリポジト�
 - VRChatから渡された引数の他に以下のオプションを自動付与します:  
   - `--ignore-config` - 設定ファイルを無視  
   - `--js-runtimes deno:./deno.exe` - Deno を JavaScript ランタイムとして使用  
-- VRChatから渡されるCache無効オプションは無視されます。 
+- VRChatから渡されるCache無効オプション、および VRChat 独自ビルド専用の `--exp-allow` / `--wild-allow` オプションは無視されます。 
 - URL形式の出力のみを標準出力に返却します。  

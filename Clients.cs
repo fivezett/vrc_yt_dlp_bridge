@@ -134,7 +134,11 @@ public class Clients
 
         // VRChat は list=RD... (YouTube Mix) 付きの動画 URL をそのまま渡してくるため、--no-playlist が無いと
         // Mix 全体を列挙し続けて yt-dlp が終了しない
-        List<string> pargs = [.. args, "--ignore-config", "--no-playlist", "--js-runtimes", "deno:./deno.exe"];
+        // yt-dlp 2026.08.19 でデフォルトクライアントが android_vr, web_safari から visionos, web に変わり
+        // (https://github.com/yt-dlp/yt-dlp/pull/17461)、映像+音声一体の形式 (itag 18) が返らなくなった。
+        // VRChat の -f 指定で映像のみの URL が選ばれて再生不能になるため、同リリースで追加された
+        // web_embedded クライアント (https://github.com/yt-dlp/yt-dlp/pull/17462) を加えて itag 18 を得る
+        List<string> pargs = [.. args, "--ignore-config", "--no-playlist", "--js-runtimes", "deno:./deno.exe", "--extractor-args", "youtube:player_client=default,web_embedded"];
         // --exp-allow / --wild-allow は VRChat 独自ビルドの yt-dlp 専用オプションで、公式 yt-dlp では "no such option" になるため値ごと除去する
         static bool IsVrcOnlyOption(string arg) => arg is "--exp-allow" or "--wild-allow";
         pargs = pargs

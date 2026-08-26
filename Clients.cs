@@ -132,7 +132,9 @@ public class Clients
             WorkingDirectory = Constraint.YtDlpWorkingDirPath,
         };
 
-        List<string> pargs = [.. args, "--ignore-config", "--js-runtimes", "deno:./deno.exe"];
+        // VRChat は list=RD... (YouTube Mix) 付きの動画 URL をそのまま渡してくるため、--no-playlist が無いと
+        // Mix 全体を列挙し続けて yt-dlp が終了しない
+        List<string> pargs = [.. args, "--ignore-config", "--no-playlist", "--js-runtimes", "deno:./deno.exe"];
         // --exp-allow / --wild-allow は VRChat 独自ビルドの yt-dlp 専用オプションで、公式 yt-dlp では "no such option" になるため値ごと除去する
         static bool IsVrcOnlyOption(string arg) => arg is "--exp-allow" or "--wild-allow";
         pargs = pargs

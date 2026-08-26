@@ -15,5 +15,7 @@
     public const int UrlProbeRetries = 2;
     public const int UrlProbeIntervalMs = 2000;
     public const int UrlProbeRequestTimeoutMs = 4000;
+    public const int LogMaxBytes = 1024 * 1024;
+    public const int LogMaxRollingFiles = 2;
 }
     

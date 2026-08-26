@@ -145,7 +145,7 @@ public class Clients
             .Where((arg, i) => arg != "--no-cache-dir" && arg != "--rm-cache-dir"
                 && !IsVrcOnlyOption(arg) && (i == 0 || !IsVrcOnlyOption(pargs[i - 1])))
             .ToList();
-        foreach (var arg in pargs) startInfo.ArgumentList.Add(arg);
+        pargs.ForEach(startInfo.ArgumentList.Add);
 
         SetYtDlpEnv(startInfo);
 

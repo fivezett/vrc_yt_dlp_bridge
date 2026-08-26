@@ -12,5 +12,8 @@
     public const string DenoDownloadUrlTemplate = "https://dl.deno.land/release/{0}/deno-x86_64-pc-windows-msvc.zip";
     public const int YtDlpUpdateIntervalDays = 1;
     public const int LogSeparatorLength = 80;
+    public const int UrlProbeRetries = 2;
+    public const int UrlProbeIntervalMs = 2000;
+    public const int UrlProbeRequestTimeoutMs = 4000;
 }
     

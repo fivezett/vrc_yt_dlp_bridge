@@ -63,3 +63,4 @@ denoおよびyt-dlpのライセンスについてはそれぞれのリポジト�
   - `--extractor-args youtube:player_client=default,web_embedded` - 映像+音声一体の形式を取得するため YouTube の web_embedded クライアントを追加  
 - VRChatから渡されるCache無効オプション、および VRChat 独自ビルド専用の `--exp-allow` / `--wild-allow` オプションは無視されます。 
 - URL形式の出力のみを標準出力に返却します。  
+- 返却する URL は取得可能になるまで(2 秒間隔で最大 2 回リトライ)確認してから返却します(発行直後の URL が 403 を返し再生に失敗するのを防ぐため)。  

@@ -1,5 +1,7 @@
 ﻿using System.Diagnostics;
 using System.IO.Compression;
+using System.Net;
+using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
 
 public class Clients
@@ -153,13 +155,14 @@ public class Clients
 
         using var process = new Process { StartInfo = startInfo };
 
+        var urls = new List<string>();
         process.OutputDataReceived += (_, e) =>
         {
             if (e.Data != null)
             {
                 var isUrl = Regex.IsMatch(e.Data, @"^s?https?://[-_.!~*'()a-zA-Z0-9;/?:@&=+$,%#]+$");
                 if (isUrl)
-                    Console.WriteLine(e.Data);
+                    urls.Add(e.Data);
                 Logger.Info((isUrl ? "[URL] " : "") + e.Data, Logger.LogSource.YtDlpBridge);
             }
         };
@@ -178,7 +181,40 @@ public class Clients
 
         await process.WaitForExitAsync();
 
+        foreach (var url in urls)
+        {
+            await WaitUntilReachable(url);
+            Console.WriteLine(url);
+        }
+
         Environment.Exit(process.ExitCode);
+    }
+
+    // googlevideo の URL は発行直後の数秒間、CDN エッジによっては 403 を返す (rr1 系は即 206、rr3 系は約 2 秒後に 206 と実測)。
+    // AVPro は URL を受け取るとすぐ開きに行き、403 だと "Loading failed" で再生失敗するため、取得可能になるまで待ってから返す
+    private static async Task WaitUntilReachable(string url)
+    {
+        for (var attempt = 0; ; attempt++)
+        {
+            try
+            {
+                using var request = new HttpRequestMessage(HttpMethod.Get, url);
+                request.Headers.Range = new RangeHeaderValue(0, 0);
+                using var cts = new CancellationTokenSource(Constraint.UrlProbeRequestTimeoutMs);
+                using var response = await Client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cts.Token);
+                if (response.StatusCode != HttpStatusCode.Forbidden)
+                    return;
+                Logger.Warning($"URL probe returned 403 (attempt {attempt + 1})", Logger.LogSource.YtDlpBridge);
+            }
+            catch (Exception e)
+            {
+                Logger.Warning($"URL probe failed:\n" + e, Logger.LogSource.YtDlpBridge);
+                return;
+            }
+            if (attempt >= Constraint.UrlProbeRetries)
+                return;
+            await Task.Delay(Constraint.UrlProbeIntervalMs);
+        }
     }
 
     private static void SetYtDlpEnv(ProcessStartInfo startInfo)

@@ -133,7 +133,12 @@ public class Clients
         };
 
         List<string> pargs = [.. args, "--ignore-config", "--js-runtimes", "deno:./deno.exe"];
-        pargs = pargs.Where(arg => arg != "--no-cache-dir" && arg != "--rm-cache-dir").ToList();
+        // --exp-allow / --wild-allow は VRChat 独自ビルドの yt-dlp 専用オプションで、公式 yt-dlp では "no such option" になるため値ごと除去する
+        static bool IsVrcOnlyOption(string arg) => arg is "--exp-allow" or "--wild-allow";
+        pargs = pargs
+            .Where((arg, i) => arg != "--no-cache-dir" && arg != "--rm-cache-dir"
+                && !IsVrcOnlyOption(arg) && (i == 0 || !IsVrcOnlyOption(pargs[i - 1])))
+            .ToList();
         foreach (var arg in pargs) startInfo.ArgumentList.Add(arg);
 
         SetYtDlpEnv(startInfo);

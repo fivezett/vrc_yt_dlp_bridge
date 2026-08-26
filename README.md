@@ -60,5 +60,6 @@ denoおよびyt-dlpのライセンスについてはそれぞれのリポジト�
   - `--ignore-config` - 設定ファイルを無視  
   - `--no-playlist` - プレイリスト付き動画 URL(`&list=...`)は動画のみを対象にする  
   - `--js-runtimes deno:./deno.exe` - Deno を JavaScript ランタイムとして使用  
+  - `--extractor-args youtube:player_client=default,web_embedded` - 映像+音声一体の形式を取得するため YouTube の web_embedded クライアントを追加  
 - VRChatから渡されるCache無効オプション、および VRChat 独自ビルド専用の `--exp-allow` / `--wild-allow` オプションは無視されます。 
 - URL形式の出力のみを標準出力に返却します。  

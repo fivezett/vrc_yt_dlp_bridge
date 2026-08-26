@@ -35,3 +35,4 @@ jobs:
             ./publish/yt-dlp.exe
             ./install.bat
             ./uninstall.bat
+            ./THIRD-PARTY-NOTICES.txt

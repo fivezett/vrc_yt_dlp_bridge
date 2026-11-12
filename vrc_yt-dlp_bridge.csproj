@@ -6,6 +6,8 @@
     <Nullable>enable</Nullable>
 	<PublishAot>true</PublishAot>
 	<AssemblyName>yt-dlp</AssemblyName>
+	<!-- install.bat が VRChat 公式の yt-dlp.exe と区別するために参照する -->
+	<Product>vrc_yt_dlp_bridge</Product>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DebugType>none</DebugType>

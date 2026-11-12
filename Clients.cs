@@ -2,11 +2,30 @@
 using System.IO.Compression;
 using System.Net;
 using System.Net.Http.Headers;
+using System.Net.Sockets;
 using System.Text.RegularExpressions;
 
 public class Clients
 {
-    private static readonly HttpClient Client = new();
+    // yt-dlp に --force-ipv4 を付けているのに合わせ、URL の到達確認なども IPv4 のみで接続する。
+    // 返却する URL は取得元 IP に紐付くため (ip= パラメータ)、確認を IPv6 で行うと 403 になり無駄に待たされる
+    private static readonly HttpClient Client = new(new SocketsHttpHandler
+    {
+        ConnectCallback = async (context, cancellationToken) =>
+        {
+            var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp) { NoDelay = true };
+            try
+            {
+                await socket.ConnectAsync(context.DnsEndPoint, cancellationToken);
+                return new NetworkStream(socket, ownsSocket: true);
+            }
+            catch
+            {
+                socket.Dispose();
+                throw;
+            }
+        }
+    });
 
     ~Clients()
     {
@@ -140,7 +159,8 @@ public class Clients
         // (https://github.com/yt-dlp/yt-dlp/pull/17461)、映像+音声一体の形式 (itag 18) が返らなくなった。
         // VRChat の -f 指定で映像のみの URL が選ばれて再生不能になるため、同リリースで追加された
         // web_embedded クライアント (https://github.com/yt-dlp/yt-dlp/pull/17462) を加えて itag 18 を得る
-        List<string> pargs = [.. args, "--ignore-config", "--no-playlist", "--js-runtimes", "deno:./deno.exe", "--extractor-args", "youtube:player_client=default,web_embedded"];
+        // --force-ipv4: IPv6 で取得すると URL が IPv6 アドレスに紐付き、IPv4 で接続するプレイヤー側で再生できない場合があるため IPv4 に固定する
+        List<string> pargs = [.. args, "--ignore-config", "--no-playlist", "--force-ipv4", "--js-runtimes", "deno:./deno.exe", "--extractor-args", "youtube:player_client=default,web_embedded"];
         // --exp-allow / --wild-allow は VRChat 独自ビルドの yt-dlp 専用オプションで、公式 yt-dlp では "no such option" になるため値ごと除去する
         static bool IsVrcOnlyOption(string arg) => arg is "--exp-allow" or "--wild-allow";
         pargs = pargs

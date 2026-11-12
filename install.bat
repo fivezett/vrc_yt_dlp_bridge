@@ -5,14 +5,27 @@ echo ============================================
 echo   vrc_yt_dlp_bridge インストール / Install
 echo ============================================
 echo.
+rem Tools\yt-dlp.exe は VRChat 公式の yt-dlp が置かれている場合もあるため、ファイルの有無ではなく
+rem バージョン情報でブリッジかどうかを判定する。
+rem   ProductName = vrc_yt_dlp_bridge : 現行のブリッジ
+rem   CompanyName = yt-dlp かつ yt-dlp_bridge フォルダあり : Product 未設定だった旧バージョンのブリッジ (.NET の既定値)
 powershell -NoProfile -ExecutionPolicy Bypass -Command ^
   "$toolsDir = \"$env:LOCALAPPDATA\..\LocalLow\VRChat\VRChat\Tools\";" ^
   "$exePath = Join-Path $toolsDir 'yt-dlp.exe';" ^
+  "$bridgeDir = Join-Path $toolsDir 'yt-dlp_bridge';" ^
+  "$isBridge = $false;" ^
   "if (Test-Path $exePath) {" ^
-  "  $oldVer = (Get-Item $exePath).VersionInfo.ProductVersion;" ^
+  "  $vi = (Get-Item $exePath).VersionInfo;" ^
+  "  $isBridge = ($vi.ProductName -eq 'vrc_yt_dlp_bridge') -or (($vi.CompanyName -eq 'yt-dlp') -and (Test-Path $bridgeDir))" ^
+  "};" ^
+  "if ($isBridge) {" ^
+  "  $oldVer = $vi.ProductVersion;" ^
   "  Write-Host \"既にインストールされています (ver $oldVer)\";" ^
   "  Write-Host 'Already installed. It will be updated.';" ^
   "  Write-Host '最新版に更新します。'" ^
+  "} elseif (Test-Path $exePath) {" ^
+  "  Write-Host 'VRChat 公式の yt-dlp.exe が見つかりました。ブリッジに置き換えます。';" ^
+  "  Write-Host 'Found the VRChat official yt-dlp.exe. It will be replaced with the bridge.'" ^
   "} else {" ^
   "  Write-Host '新しくインストールします。';" ^
   "  Write-Host 'A fresh install will be performed.'" ^
